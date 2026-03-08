@@ -60,28 +60,62 @@ cp .env.example .env
 
 ## Usage
 
-### Basic Usage
+### Option 1: Jupyter Notebooks (Recommended)
+
+The easiest way to use the Equity Research Agent is through Jupyter notebooks:
+
+#### Main Notebook
+```bash
+jupyter notebook equity_research_agent.ipynb
+```
+
+Features:
+- Interactive interface with clear section-by-section execution
+- Single question analysis
+- Custom questions
+- Interactive Q&A sessions
+- Configuration management
+
+#### Examples Notebook
+```bash
+jupyter notebook examples.ipynb
+```
+
+Contains 7 example use cases:
+1. Basic usage with single question
+2. Comprehensive analysis with workflows
+3. Interactive Q&A session
+4. Specific analyses (risk, growth, investment thesis)
+5. Yahoo Finance tool (independent usage)
+6. Web search tool (independent usage)
+7. Yahoo Finance RAG integration
+
+### Option 2: Command Line Interface
+
+You can also use the CLI scripts directly:
+
+#### Basic Usage
 
 Process a PDF and run analysis with a default question:
 ```bash
 python main.py --pdf "Salesforce, Inc. files (10-K) Basic annual filing, for period end 31-Jan-26 (CRM-US).pdf" --ticker CRM
 ```
 
-### Custom Question
+#### Custom Question
 
 Ask a specific question:
 ```bash
 python main.py --pdf path/to/pdf --ticker CRM --question "What are the key revenue drivers for this company?"
 ```
 
-### Interactive Mode
+#### Interactive Mode
 
 Start an interactive Q&A session:
 ```bash
 python main.py --pdf path/to/pdf --ticker CRM --interactive
 ```
 
-### Use Existing Vector Store
+#### Use Existing Vector Store
 
 Skip PDF reprocessing and use existing vector store:
 ```bash
@@ -147,34 +181,38 @@ for response in responses:
 
 ```
 Simple_GAR_w_langchain_langgraph/
-├── main.py                          # Main entry point
-├── requirements.txt                 # Python dependencies
-├── .env.example                     # Environment variables template
-├── .gitignore                      # Git ignore rules
-├── README.md                       # This file
+├── equity_research_agent.ipynb  # Main Jupyter notebook interface
+├── examples.ipynb               # Examples and demonstrations notebook
+├── main.py                      # CLI entry point
+├── examples.py                  # CLI examples script
+├── requirements.txt             # Python dependencies
+├── .env.example                 # Environment variables template
+├── .gitignore                   # Git ignore rules
+├── README.md                    # This file
+├── USAGE.md                     # Detailed usage guide
 │
 ├── src/
-│   ├── rag/                        # RAG system
+│   ├── rag/                     # RAG system
 │   │   ├── __init__.py
-│   │   ├── pdf_processor.py       # PDF text & table extraction
-│   │   └── vector_store.py        # Vector store management
+│   │   ├── pdf_processor.py    # PDF text & table extraction
+│   │   └── vector_store.py     # Vector store management
 │   │
-│   ├── tools/                      # Agent tools
+│   ├── tools/                   # Agent tools
 │   │   ├── __init__.py
-│   │   ├── yahoo_finance.py       # Yahoo Finance integration
-│   │   └── web_search.py          # Web search tool
+│   │   ├── yahoo_finance.py    # Yahoo Finance integration
+│   │   └── web_search.py       # Web search tool
 │   │
-│   ├── agent/                      # LangGraph agent
+│   ├── agent/                   # LangGraph agent
 │   │   ├── __init__.py
-│   │   ├── state.py               # Agent state definitions
+│   │   ├── state.py            # Agent state definitions
 │   │   ├── equity_research_agent.py  # Main agent logic
-│   │   └── workflows.py           # Predefined workflows
+│   │   └── workflows.py        # Predefined workflows
 │   │
-│   └── utils/                      # Utilities
+│   └── utils/                   # Utilities
 │       ├── __init__.py
-│       └── logging_config.py      # Logging setup
+│       └── logging_config.py   # Logging setup
 │
-└── chroma_db/                      # Vector store (generated)
+└── chroma_db/                   # Vector store (generated)
 ```
 
 ## Components
