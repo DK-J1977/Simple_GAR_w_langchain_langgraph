@@ -90,6 +90,8 @@ Contains 7 example use cases:
 6. Web search tool (independent usage)
 7. Yahoo Finance RAG integration
 
+**📖 See [NOTEBOOKS.md](NOTEBOOKS.md) for comprehensive Jupyter notebook guide**
+
 ### Option 2: Command Line Interface
 
 You can also use the CLI scripts directly:
@@ -190,6 +192,7 @@ Simple_GAR_w_langchain_langgraph/
 ├── .gitignore                   # Git ignore rules
 ├── README.md                    # This file
 ├── USAGE.md                     # Detailed usage guide
+├── NOTEBOOKS.md                 # Jupyter notebooks guide
 │
 ├── src/
 │   ├── rag/                     # RAG system
