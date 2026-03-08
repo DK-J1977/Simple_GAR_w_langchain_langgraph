@@ -17,12 +17,45 @@ cp .env.example .env
 # Edit .env and add your OpenAI API key
 ```
 
-### 2. Basic Usage
+### 2. Choose Your Interface
 
+#### Option A: Jupyter Notebooks (Recommended)
+
+Start Jupyter and open the main notebook:
 ```bash
-# Process the included Salesforce 10-K and run default analysis
-python main.py --pdf "Salesforce, Inc. files (10-K) Basic annual filing, for period end 31-Jan-26 (CRM-US).pdf" --ticker CRM
+jupyter notebook equity_research_agent.ipynb
 ```
+
+Or explore examples:
+```bash
+jupyter notebook examples.ipynb
+```
+
+**Benefits:**
+- Interactive, cell-by-cell execution
+- Visual feedback and results
+- Easy to modify and experiment
+- Perfect for exploratory analysis
+- No command-line arguments needed
+
+#### Option B: Command Line Interface
+
+Run the CLI scripts directly:
+```bash
+# Basic usage
+python main.py --pdf "Salesforce, Inc. files (10-K) Basic annual filing, for period end 31-Jan-26 (CRM-US).pdf" --ticker CRM
+
+# Interactive mode
+python main.py --pdf path/to/pdf --ticker CRM --interactive
+
+# Examples
+python examples.py
+```
+
+**Benefits:**
+- Scriptable and automatable
+- Quick one-off analyses
+- Can be integrated into larger workflows
 
 ## Command Line Options
 
@@ -39,6 +72,94 @@ python main.py --pdf "Salesforce, Inc. files (10-K) Basic annual filing, for per
 - `--log-level LEVEL`: Set logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
 
 ## Usage Examples
+
+## Jupyter Notebook Usage
+
+### Main Notebook (equity_research_agent.ipynb)
+
+The main notebook provides a complete interactive interface:
+
+1. **Setup Cell**: Import dependencies and load environment
+2. **Configuration Cell**: Set PDF path, ticker, and options
+3. **RAG Initialization**: Process PDFs and create vector store
+4. **Agent Initialization**: Create the equity research agent
+5. **Analysis Options**:
+   - Single question analysis
+   - Custom questions
+   - Interactive Q&A sessions
+   - Manual interactive mode
+
+**Example Workflow:**
+```python
+# Cell 1: Setup
+import os
+from dotenv import load_dotenv
+from src.agent.equity_research_agent import EquityResearchAgent
+# ... (imports)
+
+# Cell 2: Configuration
+PDF_PATH = "path/to/10k.pdf"
+TICKER = "CRM"
+USE_EXISTING_VECTOR_STORE = False
+
+# Cell 3: Initialize RAG
+vector_store_manager = initialize_rag_system(PDF_PATH, USE_EXISTING_VECTOR_STORE)
+
+# Cell 4: Initialize Agent
+agent = EquityResearchAgent(vector_store_manager)
+
+# Cell 5: Ask Questions
+result = agent.run("What are the key revenue drivers?", ticker=TICKER)
+print(result['answer'])
+```
+
+### Examples Notebook (examples.ipynb)
+
+Contains 7 comprehensive examples:
+
+**Example 1: Basic Usage**
+- Process PDF
+- Create vector store
+- Ask single question
+
+**Example 2: Comprehensive Analysis**
+- Use predefined workflows
+- Comprehensive summary
+- Financial analysis
+
+**Example 3: Interactive Q&A**
+- Multiple related questions
+- Context-aware responses
+
+**Example 4: Specific Analyses**
+- Risk assessment
+- Growth analysis
+- Investment thesis
+
+**Example 5: Yahoo Finance Tool**
+- Independent tool usage
+- Stock information
+- Key metrics
+
+**Example 6: Web Search Tool**
+- Company news search
+- Industry trends
+
+**Example 7: Yahoo Finance RAG Integration**
+- Create financial documents
+- Add to vector store
+- Demonstrate persistence
+
+### Benefits of Notebooks
+
+1. **Iterative Development**: Test and refine queries easily
+2. **Visual Results**: See outputs inline with code
+3. **Experimentation**: Modify parameters and retry without reprocessing
+4. **Documentation**: Markdown cells explain each step
+5. **Persistence**: Vector store cached between runs
+6. **Debugging**: Inspect intermediate results and state
+
+## Command Line Usage Examples
 
 ### Example 1: Single Question Analysis
 
