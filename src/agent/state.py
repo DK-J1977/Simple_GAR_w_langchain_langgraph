@@ -33,3 +33,4 @@ class AgentState(TypedDict):
     next_action: Optional[str]  # 'rag', 'finance', 'web_search', 'analyze', 'respond'
     iteration_count: int
     max_iterations: int
+    finance_data_fetched: bool  # Track if Yahoo Finance data has been added to RAG

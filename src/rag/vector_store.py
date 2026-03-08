@@ -234,3 +234,40 @@ class VectorStoreManager:
             search_kwargs = {"k": 4}
 
         return self.vector_store.as_retriever(search_kwargs=search_kwargs)
+
+    def add_documents(self, documents: List[Document]) -> None:
+        """
+        Add new documents to the existing vector store.
+
+        This method allows incremental addition of documents to the vector store,
+        useful for adding Yahoo Finance data or other dynamically fetched content.
+
+        Args:
+            documents: List of Document objects to add
+
+        Raises:
+            ValueError: If vector store is not initialized
+        """
+        if self.vector_store is None:
+            raise ValueError("Vector store not initialized. Create or load a vector store first.")
+
+        if not documents:
+            logger.warning("No documents provided to add to vector store")
+            return
+
+        try:
+            if isinstance(self.vector_store, Chroma):
+                # ChromaDB supports adding documents directly
+                self.vector_store.add_documents(documents)
+                logger.info(f"Added {len(documents)} documents to ChromaDB vector store")
+            elif isinstance(self.vector_store, FAISS):
+                # FAISS also supports adding documents
+                self.vector_store.add_documents(documents)
+                logger.info(f"Added {len(documents)} documents to FAISS vector store")
+            else:
+                logger.warning(f"Unsupported vector store type: {type(self.vector_store)}")
+
+        except Exception as e:
+            logger.error(f"Error adding documents to vector store: {e}")
+            raise
+

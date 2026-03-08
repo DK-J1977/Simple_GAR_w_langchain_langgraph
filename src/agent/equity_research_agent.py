@@ -94,10 +94,13 @@ class EquityResearchAgent:
         has_finance = state.get("financial_data") is not None
         has_web = state.get("web_search_results") is not None
 
-        # Priority: RAG -> Financial Data -> Web Search -> Analyze
+        # Check if we've already fetched finance data in a previous conversation turn
+        finance_already_fetched = state.get("finance_data_fetched", False)
+
+        # Priority: RAG -> Financial Data (if not fetched yet) -> Web Search -> Analyze
         if not has_rag:
             state["next_action"] = "rag"
-        elif state.get("ticker") and not has_finance:
+        elif state.get("ticker") and not has_finance and not finance_already_fetched:
             state["next_action"] = "finance"
         elif not has_web:
             state["next_action"] = "web_search"
@@ -138,7 +141,7 @@ class EquityResearchAgent:
         return state
 
     def _fetch_financial_node(self, state: AgentState) -> AgentState:
-        """Fetch financial data from Yahoo Finance."""
+        """Fetch financial data from Yahoo Finance and add to RAG system."""
         try:
             ticker = state.get("ticker")
             if not ticker:
@@ -158,6 +161,21 @@ class EquityResearchAgent:
             ]
 
             logger.info(f"Fetched financial data for {ticker}")
+
+            # Create documents from Yahoo Finance data and add to RAG system
+            try:
+                finance_docs = self.yahoo_finance.create_documents_from_financial_data(ticker)
+                if finance_docs:
+                    self.vector_store_manager.add_documents(finance_docs)
+                    state["intermediate_steps"] = state.get("intermediate_steps", []) + [
+                        {"action": "finance_to_rag", "result": f"Added {len(finance_docs)} Yahoo Finance documents to RAG"}
+                    ]
+                    # Mark that finance data has been fetched and added to RAG
+                    state["finance_data_fetched"] = True
+                    logger.info(f"Added {len(finance_docs)} Yahoo Finance documents to RAG system for {ticker}")
+            except Exception as e:
+                logger.warning(f"Could not add Yahoo Finance data to RAG system: {e}")
+
         except Exception as e:
             logger.error(f"Error fetching financial data: {e}")
             state["financial_data"] = None
@@ -314,7 +332,8 @@ Please provide a comprehensive equity research analysis addressing the question 
             conversation_history=[],
             next_action=None,
             iteration_count=0,
-            max_iterations=max_iterations
+            max_iterations=max_iterations,
+            finance_data_fetched=False
         )
 
         # Run the graph
@@ -336,6 +355,9 @@ Please provide a comprehensive equity research analysis addressing the question 
         """
         Run a conversation with multiple questions recursively.
 
+        Yahoo Finance data fetched during the first question will be available
+        in the RAG system for all subsequent questions.
+
         Args:
             questions: List of questions to ask
             ticker: Optional stock ticker symbol
@@ -345,6 +367,8 @@ Please provide a comprehensive equity research analysis addressing the question 
         """
         responses = []
 
+        # Note: Yahoo Finance data is added to RAG during first run
+        # and persists in the vector store for all subsequent questions
         for question in questions:
             result = self.run(question, ticker=ticker)
             responses.append(result)

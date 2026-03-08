@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 try:
     import yfinance as yf
     import pandas as pd
+    from langchain.schema import Document
 except ImportError as e:
     logging.error(f"Required library not installed: {e}")
     raise
@@ -244,3 +245,146 @@ Additional Information:
                 comparison += f"Market Cap: {info['market_cap']}, Sector: {info['sector']}\n\n"
 
         return comparison
+
+    def create_documents_from_financial_data(self, ticker: str) -> List[Document]:
+        """
+        Create LangChain documents from Yahoo Finance data for RAG system.
+
+        This method fetches comprehensive financial data and converts it into
+        document format that can be added to the RAG vector store.
+
+        Args:
+            ticker: Stock ticker symbol
+
+        Returns:
+            List of Document objects containing financial data
+        """
+        documents = []
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        try:
+            # Get stock info and create document
+            stock_info = self.get_stock_info(ticker)
+            if 'error' not in stock_info:
+                summary = self.get_key_metrics_summary(ticker)
+                doc = Document(
+                    page_content=summary,
+                    metadata={
+                        'source': f'Yahoo Finance - {ticker}',
+                        'ticker': ticker,
+                        'content_type': 'financial_metrics',
+                        'fetch_timestamp': timestamp,
+                        'company_name': stock_info.get('name', 'N/A'),
+                        'sector': stock_info.get('sector', 'N/A')
+                    }
+                )
+                documents.append(doc)
+                logger.info(f"Created financial metrics document for {ticker}")
+
+            # Get financial statements
+            financials = self.get_financial_statements(ticker)
+            if 'error' not in financials:
+                # Income statement
+                if financials.get('income_statement'):
+                    income_text = f"Income Statement for {ticker}:\n"
+                    income_text += f"Recent financial data showing revenue, expenses, and profitability.\n"
+                    income_text += f"Data retrieved from Yahoo Finance on {timestamp}."
+
+                    doc = Document(
+                        page_content=income_text,
+                        metadata={
+                            'source': f'Yahoo Finance - {ticker}',
+                            'ticker': ticker,
+                            'content_type': 'income_statement',
+                            'fetch_timestamp': timestamp
+                        }
+                    )
+                    documents.append(doc)
+
+                # Balance sheet
+                if financials.get('balance_sheet'):
+                    balance_text = f"Balance Sheet for {ticker}:\n"
+                    balance_text += f"Financial position showing assets, liabilities, and equity.\n"
+                    balance_text += f"Data retrieved from Yahoo Finance on {timestamp}."
+
+                    doc = Document(
+                        page_content=balance_text,
+                        metadata={
+                            'source': f'Yahoo Finance - {ticker}',
+                            'ticker': ticker,
+                            'content_type': 'balance_sheet',
+                            'fetch_timestamp': timestamp
+                        }
+                    )
+                    documents.append(doc)
+
+                # Cash flow
+                if financials.get('cash_flow'):
+                    cashflow_text = f"Cash Flow Statement for {ticker}:\n"
+                    cashflow_text += f"Operating, investing, and financing cash flows.\n"
+                    cashflow_text += f"Data retrieved from Yahoo Finance on {timestamp}."
+
+                    doc = Document(
+                        page_content=cashflow_text,
+                        metadata={
+                            'source': f'Yahoo Finance - {ticker}',
+                            'ticker': ticker,
+                            'content_type': 'cash_flow',
+                            'fetch_timestamp': timestamp
+                        }
+                    )
+                    documents.append(doc)
+
+            # Get historical data summary
+            hist_data = self.get_historical_data(ticker, period="1y")
+            if 'error' not in hist_data and hist_data.get('summary'):
+                summary_data = hist_data['summary']
+                hist_text = f"""Historical Price Data for {ticker} (1 Year):
+
+Start Date: {summary_data['start_date']}
+End Date: {summary_data['end_date']}
+Latest Close: ${summary_data['latest_close']:.2f}
+Period Return: {summary_data['period_return']:.2f}%
+
+This historical data shows the stock's price performance over the past year,
+retrieved from Yahoo Finance on {timestamp}."""
+
+                doc = Document(
+                    page_content=hist_text,
+                    metadata={
+                        'source': f'Yahoo Finance - {ticker}',
+                        'ticker': ticker,
+                        'content_type': 'historical_data',
+                        'fetch_timestamp': timestamp,
+                        'period': '1y'
+                    }
+                )
+                documents.append(doc)
+
+            # Get analyst recommendations
+            recommendations = self.get_analyst_recommendations(ticker)
+            if 'error' not in recommendations:
+                rec_text = f"""Analyst Recommendations for {ticker}:
+
+Recent analyst ratings and recommendations from various financial institutions.
+Data retrieved from Yahoo Finance on {timestamp}.
+
+This data includes buy, hold, and sell recommendations from professional analysts."""
+
+                doc = Document(
+                    page_content=rec_text,
+                    metadata={
+                        'source': f'Yahoo Finance - {ticker}',
+                        'ticker': ticker,
+                        'content_type': 'analyst_recommendations',
+                        'fetch_timestamp': timestamp
+                    }
+                )
+                documents.append(doc)
+
+            logger.info(f"Created {len(documents)} documents from Yahoo Finance data for {ticker}")
+
+        except Exception as e:
+            logger.error(f"Error creating documents from financial data for {ticker}: {e}")
+
+        return documents
