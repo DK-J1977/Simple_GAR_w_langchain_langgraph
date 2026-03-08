@@ -163,6 +163,39 @@ def example_web_search_only():
     print(news[:500] + "...")
 
 
+def example_yahoo_finance_rag_integration():
+    """Example: Yahoo Finance data integration into RAG system."""
+    print("\n" + "="*80)
+    print("EXAMPLE 7: Yahoo Finance RAG Integration")
+    print("="*80)
+
+    from src.tools.yahoo_finance import YahooFinanceTool
+    from src.rag.vector_store import VectorStoreManager
+
+    # Initialize Yahoo Finance tool
+    yf_tool = YahooFinanceTool()
+
+    # Create documents from Yahoo Finance data
+    print("\n--- Creating Documents from Yahoo Finance Data ---")
+    ticker = "CRM"
+    finance_docs = yf_tool.create_documents_from_financial_data(ticker)
+
+    print(f"Created {len(finance_docs)} documents from Yahoo Finance data for {ticker}")
+    print("\nDocument types:")
+    for doc in finance_docs:
+        content_type = doc.metadata.get('content_type', 'unknown')
+        source = doc.metadata.get('source', 'unknown')
+        print(f"  - {content_type} (Source: {source})")
+        print(f"    Preview: {doc.page_content[:100]}...")
+
+    # Demonstrate adding to vector store
+    print("\n--- Adding to Vector Store ---")
+    print("These documents can be added to an existing vector store using:")
+    print("  vector_store_manager.add_documents(finance_docs)")
+    print("\nOnce added, the financial data becomes searchable via RAG alongside PDF documents.")
+    print("The agent can retrieve specific metrics like P/E ratio, market cap, etc., through semantic search.")
+
+
 def main():
     """Run all examples."""
     # Setup
@@ -194,6 +227,10 @@ def main():
         # Example 5-6: Independent tool usage (no vector store needed)
         example_yahoo_finance_only()
         example_web_search_only()
+
+        # Example 7: Yahoo Finance RAG integration
+        print("\n")
+        example_yahoo_finance_rag_integration()
 
         print("\n" + "="*80)
         print("Examples completed!")

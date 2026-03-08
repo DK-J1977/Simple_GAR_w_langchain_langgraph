@@ -32,7 +32,7 @@ python main.py --pdf "Salesforce, Inc. files (10-K) Basic annual filing, for per
 
 ### Optional Options
 
-- `--ticker SYMBOL`: Stock ticker symbol (e.g., CRM, AAPL, MSFT)
+- `--ticker SYMBOL`: Stock ticker symbol (e.g., CRM, AAPL, MSFT) - When provided, Yahoo Finance data is automatically fetched and added to the RAG system
 - `--question "QUESTION"`: Custom question to ask the agent
 - `--interactive`: Start interactive Q&A session
 - `--use-existing`: Use existing vector store (skip PDF processing)
@@ -61,14 +61,19 @@ python main.py \
 In interactive mode, you can ask multiple follow-up questions:
 ```
 Your question: What were the total revenues last year?
-[Agent provides answer with data from 10-K and Yahoo Finance]
+[Agent provides answer with data from 10-K and Yahoo Finance RAG data]
 
 Your question: How does this compare to competitors?
-[Agent provides competitive analysis]
+[Agent provides competitive analysis, retrieving financial metrics from RAG]
 
 Your question: What are the main risks?
 [Agent analyzes risks from 10-K filing]
+
+Your question: What is the current stock price and P/E ratio?
+[Agent retrieves this from Yahoo Finance data stored in RAG]
 ```
+
+**Note**: When you provide a ticker symbol with `--ticker`, Yahoo Finance data is automatically fetched on the first query and added to the RAG vector store. This data persists for all subsequent questions in the session, allowing the agent to retrieve specific financial metrics just like it retrieves information from PDF documents.
 
 ### Example 3: Use Existing Vector Store
 
@@ -280,17 +285,33 @@ The agent combines information from three sources:
    - Investor presentations
    - Any PDF documents you provide
 
-2. **Financial Data (Yahoo Finance)**
+2. **Financial Data (Yahoo Finance) - Integrated into RAG**
    - Real-time stock prices
    - Financial statements
    - Key metrics and ratios
    - Analyst recommendations
+   - Historical price data
+   - **Automatically added to RAG vector store when ticker is provided**
+   - **Persists across queries for retrieval alongside PDF documents**
 
 3. **Web Search (DuckDuckGo)**
    - Recent news articles
    - Industry analysis
    - Market updates
    - Competitive intelligence
+
+## How Yahoo Finance RAG Integration Works
+
+When you provide a ticker symbol (e.g., `--ticker CRM`):
+
+1. **First Query**: The agent fetches comprehensive financial data from Yahoo Finance and converts it into document format with metadata (source, ticker, content type, timestamp)
+2. **RAG Integration**: These documents are added to the vector store alongside your PDF documents
+3. **Subsequent Queries**: The agent can retrieve Yahoo Finance data through the RAG system, just like it retrieves information from PDFs
+4. **Benefits**:
+   - Financial data is searchable and retrievable based on semantic similarity
+   - The agent can cite specific financial metrics with source attribution
+   - Data persists throughout the conversation session
+   - Reduces redundant API calls to Yahoo Finance
 
 ## Tips for Best Results
 

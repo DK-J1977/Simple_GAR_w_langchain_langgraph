@@ -5,6 +5,7 @@ A sophisticated AI agent for equity research analysis that combines RAG (Retriev
 ## Features
 
 - **RAG System**: Process PDF documents (10-K filings, annual reports) with support for text and tables
+- **Yahoo Finance RAG Integration**: Automatically fetches financial data and adds it to the RAG vector store when a ticker symbol is provided, making it accessible for all subsequent queries
 - **Financial Data Integration**: Fetch real-time stock data, financial metrics, and analyst recommendations from Yahoo Finance
 - **Web Search**: Access current news and market information via DuckDuckGo search
 - **Multi-Perspective Analysis**: Analyze companies from four key perspectives:
@@ -12,7 +13,7 @@ A sophisticated AI agent for equity research analysis that combines RAG (Retriev
   2. Business Model and Competitive Position
   3. Risk Factors and Challenges
   4. Growth Opportunities and Future Outlook
-- **Interactive Q&A**: Ask follow-up questions recursively using knowledge from RAG and external sources
+- **Interactive Q&A**: Ask follow-up questions recursively using knowledge from RAG and external sources, with Yahoo Finance data persisting in the vector store
 - **LangGraph Workflow**: Orchestrated agent workflow with intelligent routing and tool selection
 
 ## Architecture
@@ -210,6 +211,7 @@ Simple_GAR_w_langchain_langgraph/
 - Intelligent routing between tools
 - Multi-step reasoning and analysis
 - Conversation history management
+- Automatic integration of Yahoo Finance data into RAG vector store
 
 **Workflows** (`src/agent/workflows.py`):
 - Predefined analysis templates
@@ -261,13 +263,22 @@ OPENAI_API_KEY=your_openai_api_key_here
 
 ## Advanced Features
 
+### Yahoo Finance Data in RAG System
+When you provide a ticker symbol (e.g., `--ticker CRM`), the agent automatically:
+1. Fetches comprehensive financial data from Yahoo Finance
+2. Converts it into document format with metadata
+3. Adds it to the RAG vector store alongside PDF documents
+4. Makes it available for retrieval in all subsequent queries
+
+This means Yahoo Finance data is treated as another source of truth in the RAG system, allowing the agent to retrieve and cite specific financial metrics, historical data, and analyst recommendations just like it would retrieve information from PDF documents.
+
 ### Recursive Q&A
-The agent maintains conversation history and can answer follow-up questions that reference previous context.
+The agent maintains conversation history and can answer follow-up questions that reference previous context. Yahoo Finance data persists in the vector store across multiple questions in the same session.
 
 ### Multi-Source Analysis
 Each analysis combines information from:
 1. Company documents (SEC filings, PDFs)
-2. Real-time financial data
+2. Real-time financial data from Yahoo Finance (added to RAG)
 3. Recent news and web sources
 
 ### Customizable Workflows
